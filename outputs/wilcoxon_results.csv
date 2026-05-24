@@ -1,0 +1,29 @@
+Model 1,Model 2,Statistic,P-Value,Significant
+Random Forest,XGBoost,0.0,0.0625,False
+Random Forest,Bagging,0.0,0.0625,False
+Random Forest,KNN,0.0,0.0625,False
+Random Forest,MLP,0.0,0.0625,False
+Random Forest,Logistic Regression,0.0,0.0625,False
+Random Forest,Decision Tree,0.0,0.0625,False
+Random Forest,SVM,0.0,0.0625,False
+XGBoost,Bagging,0.0,0.0625,False
+XGBoost,KNN,0.0,0.0625,False
+XGBoost,MLP,0.0,0.0625,False
+XGBoost,Logistic Regression,0.0,0.0625,False
+XGBoost,Decision Tree,0.0,0.0625,False
+XGBoost,SVM,0.0,0.0625,False
+Bagging,KNN,0.0,0.0625,False
+Bagging,MLP,0.0,0.0625,False
+Bagging,Logistic Regression,0.0,0.0625,False
+Bagging,Decision Tree,0.0,0.0625,False
+Bagging,SVM,0.0,0.0625,False
+KNN,MLP,0.0,0.0625,False
+KNN,Logistic Regression,0.0,0.0625,False
+KNN,Decision Tree,0.0,0.0625,False
+KNN,SVM,0.0,0.0625,False
+MLP,Logistic Regression,0.0,0.0625,False
+MLP,Decision Tree,0.0,0.0625,False
+MLP,SVM,0.0,0.0625,False
+Logistic Regression,Decision Tree,0.0,0.0625,False
+Logistic Regression,SVM,0.0,0.0625,False
+Decision Tree,SVM,0.0,0.0625,False
