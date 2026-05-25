@@ -17,6 +17,7 @@ This project combines:
 - 📊 Data Preprocessing
 - 🔄 SMOTE Balancing
 - 🤖 Multiple Machine Learning Models
+- 📈 ROC Curve & Confusion Matrix Analysis
 - 🏆 TOPSIS Ranking
 - 📐 Wilcoxon Statistical Testing
 - 🔍 Explainable AI using SHAP & LIME
@@ -33,6 +34,7 @@ to create a complete intelligent banking prediction system.
 - Rank models scientifically
 - Validate model performance statistically
 - Explain predictions using Explainable AI
+- Generate automated evaluation visualizations
 
 ---
 
@@ -51,6 +53,7 @@ to create a complete intelligent banking prediction system.
 # ⚙️ Technologies Used
 
 ## 🔹 Programming Language
+
 - Python
 
 ## 🔹 Libraries & Frameworks
@@ -75,7 +78,6 @@ to create a complete intelligent banking prediction system.
 - Decision Tree
 - Random Forest
 - Bagging Classifier
-- Stacking Classifier
 - K-Nearest Neighbors (KNN)
 - Support Vector Machine (SVM)
 - Multi-Layer Perceptron (MLP)
@@ -97,6 +99,9 @@ Performs statistical significance testing between model performances.
 ## 🔍 SHAP & LIME
 Provides Explainable AI for feature importance and prediction interpretation.
 
+## 📈 ROC Curve & Confusion Matrix
+Advanced evaluation visualizations for performance analysis.
+
 ---
 
 # 📏 Evaluation Metrics
@@ -107,12 +112,10 @@ Provides Explainable AI for feature importance and prediction interpretation.
 - F1-Score
 - ROC-AUC Score
 - Confusion Matrix
-- Matthews Correlation Coefficient (MCC)
-- Cohen’s Kappa Score
 
 ---
 
-# ⚡ Project Workflow
+# ⚡ Complete Project Workflow
 
 ```text
 Raw Dataset
@@ -125,6 +128,8 @@ Machine Learning Model Training
      ↓
 Performance Evaluation
      ↓
+ROC Curve & Confusion Matrix
+     ↓
 TOPSIS Ranking
      ↓
 Wilcoxon Statistical Testing
@@ -136,10 +141,10 @@ Final Best Model
 
 ---
 
-# 📁 Project Structure
+# 📁 Final Project Structure
 
 ```text
-Bank_Marketing_Project/
+Bank-Marketing-Analysis/
 │
 ├── dataset/
 │   ├── bank-additional-full.csv
@@ -153,21 +158,25 @@ Bank_Marketing_Project/
 │   ├── 05_SHAP_LIME.py
 │   ├── config.py
 │   ├── utils.py
-│   └── plots.py
+│   ├── plots.py
+│   └── evaluation_plots.py
 │
 ├── outputs/
 │   ├── model_results.csv
 │   ├── topsis_results.csv
 │   ├── wilcoxon_results.csv
+│   ├── feature_importance.csv
+│   ├── lime_explanation.html
 │   │
 │   └── graphs/
-│       ├── class_distribution.png
+│       ├── class_distribution_before_smote.png
 │       ├── balanced_dataset.png
 │       ├── accuracy_comparison.png
-│       ├── confusion_matrix.png
-│       ├── roc_curve.png
-│       └── shap_summary.png
+│       ├── shap_summary.png
+│       ├── roc_curve_*.png
+│       └── confusion_matrix_*.png
 │
+├── main.py
 ├── requirements.txt
 ├── README.md
 ├── LICENSE
@@ -181,7 +190,7 @@ Bank_Marketing_Project/
 ## 🔹 Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Bank_Marketing_Project.git
+git clone https://github.com/YOUR_USERNAME/Bank-Marketing-Analysis.git
 ```
 
 ---
@@ -189,7 +198,7 @@ git clone https://github.com/YOUR_USERNAME/Bank_Marketing_Project.git
 ## 🔹 Move Into Project Folder
 
 ```bash
-cd Bank_Marketing_Project
+cd Bank-Marketing-Analysis
 ```
 
 ---
@@ -204,7 +213,17 @@ pip install -r requirements.txt
 
 # ▶️ How To Run The Project
 
-## 🔹 Step 1 — Run SMOTE Preprocessing
+## 🔹 Run Complete Automated Pipeline
+
+```bash
+python main.py
+```
+
+---
+
+# ▶️ Run Individual Scripts
+
+## 🔹 Step 1 — SMOTE Preprocessing
 
 ```bash
 python scripts/01_Smote_Preprocessing.py
@@ -212,7 +231,7 @@ python scripts/01_Smote_Preprocessing.py
 
 ---
 
-## 🔹 Step 2 — Run Machine Learning Models
+## 🔹 Step 2 — Model Training
 
 ```bash
 python scripts/02_Model_Training.py
@@ -220,7 +239,7 @@ python scripts/02_Model_Training.py
 
 ---
 
-## 🔹 Step 3 — Run TOPSIS Ranking
+## 🔹 Step 3 — TOPSIS Ranking
 
 ```bash
 python scripts/03_TOPSIS_Ranking.py
@@ -228,7 +247,7 @@ python scripts/03_TOPSIS_Ranking.py
 
 ---
 
-## 🔹 Step 4 — Run Wilcoxon Statistical Testing
+## 🔹 Step 4 — Wilcoxon Statistical Testing
 
 ```bash
 python scripts/04_Wilcoxon_Test.py
@@ -236,7 +255,7 @@ python scripts/04_Wilcoxon_Test.py
 
 ---
 
-## 🔹 Step 5 — Run SHAP & LIME Explainability
+## 🔹 Step 5 — SHAP & LIME Explainability
 
 ```bash
 python scripts/05_SHAP_LIME.py
@@ -244,27 +263,44 @@ python scripts/05_SHAP_LIME.py
 
 ---
 
-# 📊 Expected Outputs
+# 📊 Generated Outputs
+
+## 📄 CSV Files
 
 - Balanced Dataset
 - Model Evaluation Results
 - TOPSIS Ranking Results
-- Statistical Test Results
-- SHAP Summary Graphs
-- LIME Prediction Explanations
-- Performance Visualization Graphs
+- Wilcoxon Statistical Results
+- Feature Importance Results
+
+## 📈 Visualization Graphs
+
+- Class Distribution Graph
+- Balanced Dataset Graph
+- Accuracy Comparison Graph
+- ROC Curves
+- Confusion Matrices
+- SHAP Summary Plot
+
+## 🔍 Explainable AI Outputs
+
+- SHAP Feature Analysis
+- LIME HTML Explanations
 
 ---
 
 # 🌟 Key Features
 
-✅ Advanced Machine Learning Workflow  
-✅ Research-Oriented Implementation  
+✅ End-to-End Machine Learning Pipeline  
+✅ Automated Script Execution  
+✅ Research-Oriented Workflow  
 ✅ Statistical Validation  
 ✅ Explainable AI Integration  
-✅ Modular Script-Based Structure  
+✅ Modular Script-Based Architecture  
+✅ Advanced Visualization System  
 ✅ Professional GitHub Repository Design  
 ✅ VS Code Friendly Project Structure  
+✅ Fully Automated Output Generation  
 
 ---
 
@@ -278,8 +314,6 @@ python scripts/05_SHAP_LIME.py
 | Member 4 Name | Research & Documentation |
 | Member 5 Name | Visualization & Testing |
 
-
-
 ---
 
 # 📚 Future Improvements
@@ -289,7 +323,8 @@ python scripts/05_SHAP_LIME.py
 - Hyperparameter Optimization
 - Deep Learning Integration
 - Cloud Deployment
-- Automated ML Pipeline
+- Docker Support
+- Automated Hyperparameter Tuning
 
 ---
 
@@ -312,5 +347,3 @@ Special thanks to:
 # ⭐ Support
 
 If you found this project useful, please consider giving it a ⭐ on GitHub.
-
----
