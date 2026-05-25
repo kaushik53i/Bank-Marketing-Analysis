@@ -190,7 +190,7 @@ Bank-Marketing-Analysis/
 ## 🔹 Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Bank-Marketing-Analysis.git
+git clone https://github.com/kaushik53i/Bank-Marketing-Analysis.git
 ```
 
 ---
@@ -306,13 +306,13 @@ python scripts/05_SHAP_LIME.py
 
 # 👥 Project Team Members
 
-| Name | Role |
-|---|---|
-| Member 1 Name | Team Leader / Machine Learning Developer |
-| Member 2 Name | Data Preprocessing & Analysis |
-| Member 3 Name | Model Training & Evaluation |
-| Member 4 Name | Research & Documentation |
-| Member 5 Name | Visualization & Testing |
+| Name |
+|---|
+| Kaushik Bhowmick | 
+| SK Firdous | 
+| Santanu Khaskel | 
+| Ronit Bag| 
+| Biswajit Kar | 
 
 ---
 
