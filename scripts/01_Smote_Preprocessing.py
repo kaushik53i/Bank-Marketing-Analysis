@@ -22,233 +22,302 @@ from sklearn.preprocessing import LabelEncoder
 # SMOTE for balancing dataset
 from imblearn.over_sampling import SMOTE
 
-
-# =========================================================
-# STEP 2 - LOAD DATASET
-# =========================================================
-
-# IMPORTANT:
-# Dataset uses SEMICOLON (;) separator
-# So we must use sep=';'
-
-df = pd.read_csv(
-    "dataset/bank-additional-full.csv",
-    sep=';'
-)
-
-print("\n✅ Dataset Loaded Successfully")
+# System utilities
+import os
 
 
 # =========================================================
-# STEP 3 - BASIC DATASET INFORMATION
+# IMPORT CUSTOM MODULES
 # =========================================================
 
-# Shape of dataset
-print("\n==============================")
-print("📊 DATASET SHAPE")
-print("==============================")
+from config import *
 
-print(df.shape)
+from utils import *
 
-# Column names
-print("\n==============================")
-print("📌 COLUMN NAMES")
-print("==============================")
-
-print(df.columns)
-
-# First 5 rows
-print("\n==============================")
-print("📄 FIRST 5 ROWS")
-print("==============================")
-
-print(df.head())
-
-# Missing values
-print("\n==============================")
-print("❓ MISSING VALUES")
-print("==============================")
-
-print(df.isnull().sum())
+from plots import *
 
 
 # =========================================================
-# STEP 4 - CHECK TARGET CLASS DISTRIBUTION
+# MAIN FUNCTION
 # =========================================================
 
-print("\n==============================")
-print("🎯 TARGET CLASS DISTRIBUTION")
-print("==============================")
+def main():
 
-print(df['y'].value_counts())
+    # =====================================================
+    # STEP TITLE
+    # =====================================================
 
-# Visualization
-df['y'].value_counts().plot(
-    kind='bar'
-)
-
-plt.title("Class Distribution Before SMOTE")
-plt.xlabel("Class")
-plt.ylabel("Count")
-
-plt.savefig("outputs/graphs/class_distribution_before_smote.png")
-plt.close()
+    print_step(1, "SMOTE PREPROCESSING")
 
 
-# =========================================================
-# STEP 5 - ENCODE CATEGORICAL DATA
-# =========================================================
+    # =====================================================
+    # CREATE OUTPUT FOLDERS
+    # =====================================================
 
-# Machine Learning models cannot understand text
-# So we convert text into numbers
+    os.makedirs("outputs", exist_ok=True)
 
-from sklearn.preprocessing import LabelEncoder
+    os.makedirs("outputs/graphs", exist_ok=True)
 
-# Create separate encoder for each column
-label_encoders = {}
-
-# Encode all categorical columns
-for column in df.select_dtypes(include='object').columns:
-
-    le = LabelEncoder()
-
-    df[column] = le.fit_transform(df[column])
-
-    label_encoders[column] = le
-
-print("\n✅ Categorical Data Encoded Successfully")
+    print_success("Output folders ready")
 
 
-# =========================================================
-# STEP 6 - SEPARATE FEATURES AND TARGET
-# =========================================================
+    # =====================================================
+    # STEP 2 - LOAD DATASET
+    # =====================================================
 
-# Features (Input data)
-X = df.drop('y', axis=1)
+    # IMPORTANT:
+    # Dataset uses SEMICOLON (;) separator
 
-# Target (Output data)
-y = df['y']
+    try:
 
-print("\n✅ Features and Target Separated")
+        df = pd.read_csv(
 
+            RAW_DATASET_PATH,
 
-# =========================================================
-# STEP 7 - TRAIN TEST SPLIT
-# =========================================================
+            sep=';'
+        )
 
-# 80% Training Data
-# 20% Testing Data
+        print_success(
+            "Dataset Loaded Successfully"
+        )
 
-X_train, X_test, y_train, y_test = train_test_split(
+    except FileNotFoundError:
 
-    X,
-    y,
+        print_error(
+            "Dataset File Not Found"
+        )
 
-    test_size=0.2,
-
-    random_state=42
-)
-
-print("\n✅ Train-Test Split Completed")
-
-print("\nTraining Data Shape:")
-print(X_train.shape)
-
-print("\nTesting Data Shape:")
-print(X_test.shape)
+        return
 
 
-# =========================================================
-# STEP 8 - APPLY SMOTE
-# =========================================================
+    # =====================================================
+    # STEP 3 - BASIC DATASET INFORMATION
+    # =====================================================
 
-# Create SMOTE object
-smote = SMOTE(random_state=42)
+    # Shape of dataset
+    print_heading("📊 DATASET SHAPE")
 
-# Apply SMOTE only on training data
-X_train_smote, y_train_smote = smote.fit_resample(
-
-    X_train,
-    y_train
-)
-
-print("\n✅ SMOTE Applied Successfully")
+    print_shape(df)
 
 
-# =========================================================
-# STEP 9 - CHECK CLASS DISTRIBUTION
-# =========================================================
+    # Column names
+    print_heading("📌 COLUMN NAMES")
 
-print("\n==============================")
-print("📊 BEFORE SMOTE")
-print("==============================")
-
-print(y_train.value_counts())
-
-print("\n==============================")
-print("📊 AFTER SMOTE")
-print("==============================")
-
-print(y_train_smote.value_counts())
+    print(df.columns)
 
 
-# =========================================================
-# STEP 10 - VISUALIZE BALANCED DATASET
-# =========================================================
+    # First 5 rows
+    print_heading("📄 FIRST 5 ROWS")
 
-pd.Series(y_train_smote).value_counts().plot(
-    kind='bar'
-)
-
-plt.title("Balanced Dataset After SMOTE")
-
-plt.xlabel("Class")
-
-plt.ylabel("Count")
-
-plt.savefig("outputs/graphs/balanced_dataset.png")
-plt.close()
-
-# =========================================================
-# STEP 11 - SAVE BALANCED DATASET
-# =========================================================
-
-# Convert into DataFrame
-balanced_df = pd.DataFrame(
-
-    X_train_smote,
-    columns=X.columns
-)
-
-# Add target column
-balanced_df['y'] = y_train_smote
-
-# Save CSV file
-balanced_df.to_csv(
-
-    "dataset/balanced_bank_data.csv",
-
-    index=False
-)
-
-print("\n✅ Balanced Dataset Saved Successfully")
-
-print("\n📁 File Name:")
-print("dataset/balanced_bank_data.csv")
+    print_head(df)
 
 
-# =========================================================
-# STEP 12 - FINAL MESSAGE
-# =========================================================
+    # Missing values
+    print_heading("❓ MISSING VALUES")
 
-print("\n========================================")
-print("🎉 SMOTE PREPROCESSING COMPLETED")
-print("========================================")
+    print(df.isnull().sum())
 
-print("""
+
+    # =====================================================
+    # STEP 4 - CHECK TARGET CLASS DISTRIBUTION
+    # =====================================================
+
+    print_heading("🎯 TARGET CLASS DISTRIBUTION")
+
+    print(df['y'].value_counts())
+
+
+    # =====================================================
+    # VISUALIZE CLASS DISTRIBUTION
+    # =====================================================
+
+    plot_class_distribution(df['y'])
+
+    print_success(
+        "Class Distribution Graph Saved"
+    )
+
+
+    # =====================================================
+    # STEP 5 - ENCODE CATEGORICAL DATA
+    # =====================================================
+
+    # Machine Learning models cannot understand text
+    # So we convert text into numbers
+
+    # Create separate encoder for each column
+    label_encoders = {}
+
+    # Encode all categorical columns
+    for column in df.select_dtypes(
+        include='object'
+    ).columns:
+
+        le = LabelEncoder()
+
+        df[column] = le.fit_transform(
+            df[column]
+        )
+
+        label_encoders[column] = le
+
+    print_success(
+        "Categorical Data Encoded Successfully"
+    )
+
+
+    # =====================================================
+    # STEP 6 - SEPARATE FEATURES AND TARGET
+    # =====================================================
+
+    # Features (Input data)
+    X = df.drop('y', axis=1)
+
+    # Target (Output data)
+    y = df['y']
+
+    print_success(
+        "Features and Target Separated"
+    )
+
+
+    # =====================================================
+    # STEP 7 - TRAIN TEST SPLIT
+    # =====================================================
+
+    # 80% Training Data
+    # 20% Testing Data
+
+    X_train, X_test, y_train, y_test = train_test_split(
+
+        X,
+        y,
+
+        test_size=TEST_SIZE,
+
+        random_state=RANDOM_STATE
+    )
+
+    print_success(
+        "Train-Test Split Completed"
+    )
+
+    print("\n📊 Training Data Shape:")
+
+    print(X_train.shape)
+
+    print("\n📊 Testing Data Shape:")
+
+    print(X_test.shape)
+
+
+    # =====================================================
+    # STEP 8 - APPLY SMOTE
+    # =====================================================
+
+    # Create SMOTE object
+    smote = SMOTE(
+        random_state=RANDOM_STATE
+    )
+
+    # Apply SMOTE only on training data
+    X_train_smote, y_train_smote = smote.fit_resample(
+
+        X_train,
+        y_train
+    )
+
+    print_success(
+        "SMOTE Applied Successfully"
+    )
+
+
+    # =====================================================
+    # STEP 9 - CHECK CLASS DISTRIBUTION
+    # =====================================================
+
+    print_heading("📊 BEFORE SMOTE")
+
+    print(y_train.value_counts())
+
+
+    print_heading("📊 AFTER SMOTE")
+
+    print(y_train_smote.value_counts())
+
+
+    # =====================================================
+    # STEP 10 - VISUALIZE BALANCED DATASET
+    # =====================================================
+
+    plot_balanced_dataset(y_train_smote)
+
+    print_success(
+        "Balanced Dataset Graph Saved"
+    )
+
+
+    # =====================================================
+    # STEP 11 - SAVE BALANCED DATASET
+    # =====================================================
+
+    # Convert into DataFrame
+    balanced_df = pd.DataFrame(
+
+        X_train_smote,
+
+        columns=X.columns
+    )
+
+    # Add target column
+    balanced_df['y'] = y_train_smote
+
+    # Save CSV file
+    balanced_df.to_csv(
+
+        BALANCED_DATASET_PATH,
+
+        index=False
+    )
+
+    print_success(
+        "Balanced Dataset Saved Successfully"
+    )
+
+    print("\n📁 File Saved:")
+
+    print(BALANCED_DATASET_PATH)
+
+
+    # =====================================================
+    # STEP 12 - FINAL MESSAGE
+    # =====================================================
+
+    print("\n========================================")
+
+    print("🎉 SMOTE PREPROCESSING COMPLETED")
+
+    print("========================================")
+
+    print("""
+Generated Outputs:
+
+1. dataset/balanced_bank_data.csv
+
+2. outputs/graphs/class_distribution_before_smote.png
+
+3. outputs/graphs/balanced_dataset.png
+
+
 Next Step:
 Run -> 02_Model_Training.py
-
-Generated File:
-dataset/balanced_bank_data.csv
 """)
+
+
+# =========================================================
+# RUN MAIN FUNCTION
+# =========================================================
+
+if __name__ == "__main__":
+
+    main()
