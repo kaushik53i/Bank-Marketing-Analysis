@@ -6,187 +6,262 @@
 # STEP 1 - IMPORT LIBRARIES
 # =========================================================
 
+# Data handling
 import pandas as pd
 import numpy as np
+
+# System utilities
 import os
 
-# =========================================================
-# STEP 2 - CREATE OUTPUT FOLDERS
-# =========================================================
-
-os.makedirs("outputs", exist_ok=True)
-
-print("\n✅ Output folders ready")
-
 
 # =========================================================
-# STEP 3 - LOAD MODEL RESULTS
+# IMPORT CUSTOM MODULES
 # =========================================================
 
-df = pd.read_csv(
-    "outputs/model_results.csv"
-)
+from config import *
 
-print("\n✅ Model Results Loaded Successfully")
+from utils import *
 
 
 # =========================================================
-# STEP 4 - DISPLAY DATASET
+# MAIN FUNCTION
 # =========================================================
 
-print("\n==============================")
-print("📊 MODEL RESULTS")
-print("==============================")
+def main():
 
-print(df)
+    # =====================================================
+    # STEP TITLE
+    # =====================================================
 
-
-# =========================================================
-# STEP 5 - SEPARATE NUMERICAL DATA
-# =========================================================
-
-# Remove model names
-data = df.drop("Model", axis=1)
-
-print("\n✅ Numerical Metrics Extracted")
+    print_step(3, "TOPSIS RANKING")
 
 
-# =========================================================
-# STEP 6 - NORMALIZE DATA
-# =========================================================
+    # =====================================================
+    # CREATE OUTPUT FOLDERS
+    # =====================================================
 
-normalized_data = data / np.sqrt(
-    (data ** 2).sum()
-)
+    os.makedirs("outputs", exist_ok=True)
 
-print("\n✅ Data Normalization Completed")
+    print_success("Output folders ready")
 
 
-# =========================================================
-# STEP 7 - ASSIGN WEIGHTS
-# =========================================================
+    # =====================================================
+    # STEP 2 - LOAD MODEL RESULTS
+    # =====================================================
 
-# Equal importance to all metrics
-weights = np.array([1, 1, 1, 1, 1])
+    try:
 
-# Normalize weights
-weights = weights / weights.sum()
+        df = pd.read_csv(
+            MODEL_RESULTS_PATH
+        )
 
-print("\n✅ Weights Assigned")
+        print_success(
+            "Model Results Loaded Successfully"
+        )
 
-print("\nWeights:")
-print(weights)
+    except FileNotFoundError:
 
+        print_error(
+            "Model Results File Not Found"
+        )
 
-# =========================================================
-# STEP 8 - CREATE WEIGHTED MATRIX
-# =========================================================
-
-weighted_data = normalized_data * weights
-
-print("\n✅ Weighted Matrix Created")
+        return
 
 
-# =========================================================
-# STEP 9 - DETERMINE IDEAL BEST & WORST
-# =========================================================
+    # =====================================================
+    # STEP 3 - DISPLAY DATASET
+    # =====================================================
 
-ideal_best = weighted_data.max()
+    print_heading("📊 MODEL RESULTS")
 
-ideal_worst = weighted_data.min()
-
-print("\n✅ Ideal Best and Worst Calculated")
+    print(df)
 
 
-# =========================================================
-# STEP 10 - CALCULATE DISTANCES
-# =========================================================
+    # =====================================================
+    # STEP 4 - SEPARATE NUMERICAL DATA
+    # =====================================================
 
-distance_best = np.sqrt(
-    ((weighted_data - ideal_best) ** 2).sum(axis=1)
-)
+    # Remove model names
+    data = df.drop("Model", axis=1)
 
-distance_worst = np.sqrt(
-    ((weighted_data - ideal_worst) ** 2).sum(axis=1)
-)
-
-print("\n✅ Distance Calculation Completed")
+    print_success(
+        "Numerical Metrics Extracted"
+    )
 
 
-# =========================================================
-# STEP 11 - CALCULATE TOPSIS SCORE
-# =========================================================
+    # =====================================================
+    # STEP 5 - NORMALIZE DATA
+    # =====================================================
 
-topsis_score = distance_worst / (
-    distance_best + distance_worst
-)
+    normalized_data = data / np.sqrt(
+        (data ** 2).sum()
+    )
 
-df["TOPSIS Score"] = topsis_score
-
-print("\n✅ TOPSIS Scores Generated")
-
-
-# =========================================================
-# STEP 12 - GENERATE RANKINGS
-# =========================================================
-
-df["Rank"] = df["TOPSIS Score"].rank(
-    ascending=False
-)
-
-# Sort models by score
-df = df.sort_values(
-    by="TOPSIS Score",
-    ascending=False
-)
-
-print("\n==============================")
-print("🏆 FINAL MODEL RANKINGS")
-print("==============================")
-
-print(df)
+    print_success(
+        "Data Normalization Completed"
+    )
 
 
-# =========================================================
-# STEP 13 - SAVE RESULTS
-# =========================================================
+    # =====================================================
+    # STEP 6 - ASSIGN WEIGHTS
+    # =====================================================
 
-df.to_csv(
-    "outputs/topsis_results.csv",
-    index=False
-)
+    # Equal importance to all metrics
+    weights = np.array(
+        TOPSIS_WEIGHTS
+    )
 
-print("\n✅ TOPSIS Results Saved Successfully")
+    # Normalize weights
+    weights = weights / weights.sum()
 
-print("\n📁 File Saved:")
-print("outputs/topsis_results.csv")
+    print_success(
+        "Weights Assigned"
+    )
 
+    print("\n📊 Weights:")
 
-# =========================================================
-# STEP 14 - DISPLAY BEST MODEL
-# =========================================================
-
-best_model = df.iloc[0]
-
-print("\n==============================")
-print("🥇 BEST MODEL")
-print("==============================")
-
-print(best_model)
+    print(weights)
 
 
-# =========================================================
-# STEP 15 - FINAL MESSAGE
-# =========================================================
+    # =====================================================
+    # STEP 7 - CREATE WEIGHTED MATRIX
+    # =====================================================
 
-print("\n========================================")
-print("🎉 TOPSIS RANKING COMPLETED")
-print("========================================")
+    weighted_data = normalized_data * weights
 
-print("""
+    print_success(
+        "Weighted Matrix Created"
+    )
+
+
+    # =====================================================
+    # STEP 8 - DETERMINE IDEAL BEST & WORST
+    # =====================================================
+
+    ideal_best = weighted_data.max()
+
+    ideal_worst = weighted_data.min()
+
+    print_success(
+        "Ideal Best and Worst Calculated"
+    )
+
+
+    # =====================================================
+    # STEP 9 - CALCULATE DISTANCES
+    # =====================================================
+
+    distance_best = np.sqrt(
+        ((weighted_data - ideal_best) ** 2).sum(axis=1)
+    )
+
+    distance_worst = np.sqrt(
+        ((weighted_data - ideal_worst) ** 2).sum(axis=1)
+    )
+
+    print_success(
+        "Distance Calculation Completed"
+    )
+
+
+    # =====================================================
+    # STEP 10 - CALCULATE TOPSIS SCORE
+    # =====================================================
+
+    topsis_score = distance_worst / (
+
+        distance_best + distance_worst
+    )
+
+    df["TOPSIS Score"] = topsis_score
+
+    print_success(
+        "TOPSIS Scores Generated"
+    )
+
+
+    # =====================================================
+    # STEP 11 - GENERATE RANKINGS
+    # =====================================================
+
+    df["Rank"] = df["TOPSIS Score"].rank(
+
+        ascending=False
+    )
+
+    # Sort models by score
+    df = df.sort_values(
+
+        by="TOPSIS Score",
+
+        ascending=False
+    )
+
+    print_heading(
+        "🏆 FINAL MODEL RANKINGS"
+    )
+
+    print(df)
+
+
+    # =====================================================
+    # STEP 12 - SAVE RESULTS
+    # =====================================================
+
+    df.to_csv(
+
+        TOPSIS_RESULTS_PATH,
+
+        index=False
+    )
+
+    print_success(
+        "TOPSIS Results Saved Successfully"
+    )
+
+    print("\n📁 File Saved:")
+
+    print(TOPSIS_RESULTS_PATH)
+
+
+    # =====================================================
+    # STEP 13 - DISPLAY BEST MODEL
+    # =====================================================
+
+    best_model = df.iloc[0]
+
+    print_heading(
+        "🥇 BEST MODEL"
+    )
+
+    print(best_model)
+
+
+    # =====================================================
+    # STEP 14 - FINAL MESSAGE
+    # =====================================================
+
+    print("\n========================================")
+
+    print("🎉 TOPSIS RANKING COMPLETED")
+
+    print("========================================")
+
+    print("""
+Generated File:
+
+1. outputs/topsis_results.csv
+
+
 Next Step:
 Run -> 04_Wilcoxon_Test.py
-
-Generated File:
-outputs/topsis_results.csv
 """)
+
+
+# =========================================================
+# RUN MAIN FUNCTION
+# =========================================================
+
+if __name__ == "__main__":
+
+    main()
