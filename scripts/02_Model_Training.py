@@ -18,303 +18,436 @@ from sklearn.model_selection import train_test_split
 
 # Evaluation metrics
 from sklearn.metrics import (
+
     accuracy_score,
     precision_score,
     recall_score,
     f1_score,
-    roc_auc_score,
-    confusion_matrix
+    roc_auc_score
 )
 
 # Machine Learning Models
 from sklearn.linear_model import LogisticRegression
+
 from sklearn.tree import DecisionTreeClassifier
+
 from sklearn.ensemble import RandomForestClassifier
+
 from sklearn.ensemble import BaggingClassifier
+
 from sklearn.neighbors import KNeighborsClassifier
+
 from sklearn.svm import SVC
+
 from sklearn.neural_network import MLPClassifier
 
 # XGBoost
 from xgboost import XGBClassifier
 
-# Visualization
-import matplotlib.pyplot as plt
+
+# =========================================================
+# IMPORT CUSTOM MODULES
+# =========================================================
+
+from config import *
+
+from utils import *
+
+from plots import *
+
+from evaluation_plots import *
 
 
 # =========================================================
-# STEP 2 - CREATE OUTPUT FOLDERS
+# MAIN FUNCTION
 # =========================================================
 
-os.makedirs("outputs", exist_ok=True)
+def main():
 
-os.makedirs("outputs/graphs", exist_ok=True)
+    # =====================================================
+    # STEP TITLE
+    # =====================================================
 
-print("\n✅ Output folders ready")
-
-
-# =========================================================
-# STEP 3 - LOAD BALANCED DATASET
-# =========================================================
-
-df = pd.read_csv(
-    "dataset/balanced_bank_data.csv"
-)
-
-print("\n✅ Balanced Dataset Loaded Successfully")
+    print_step(2, "MODEL TRAINING")
 
 
-# =========================================================
-# STEP 4 - DATASET INFORMATION
-# =========================================================
+    # =====================================================
+    # CREATE OUTPUT FOLDERS
+    # =====================================================
 
-print("\n==============================")
-print("📊 DATASET SHAPE")
-print("==============================")
+    os.makedirs("outputs", exist_ok=True)
 
-print(df.shape)
+    os.makedirs("outputs/graphs", exist_ok=True)
 
-print("\n==============================")
-print("📄 FIRST 5 ROWS")
-print("==============================")
-
-print(df.head())
+    print_success("Output folders ready")
 
 
-# =========================================================
-# STEP 5 - SEPARATE FEATURES AND TARGET
-# =========================================================
+    # =====================================================
+    # STEP 2 - LOAD BALANCED DATASET
+    # =====================================================
 
-# Features
-X = df.drop("y", axis=1)
+    try:
 
-# Target
-y = df["y"]
+        df = pd.read_csv(
+            BALANCED_DATASET_PATH
+        )
 
-print("\n✅ Features and Target Separated")
+        print_success(
+            "Balanced Dataset Loaded Successfully"
+        )
 
+    except FileNotFoundError:
 
-# =========================================================
-# STEP 6 - TRAIN TEST SPLIT
-# =========================================================
+        print_error(
+            "Balanced Dataset File Not Found"
+        )
 
-X_train, X_test, y_train, y_test = train_test_split(
-
-    X,
-    y,
-
-    test_size=0.2,
-
-    random_state=42
-)
-
-print("\n✅ Train-Test Split Completed")
-
-print("\nTraining Data Shape:")
-print(X_train.shape)
-
-print("\nTesting Data Shape:")
-print(X_test.shape)
+        return
 
 
-# =========================================================
-# STEP 7 - CREATE MACHINE LEARNING MODELS
-# =========================================================
+    # =====================================================
+    # STEP 3 - DATASET INFORMATION
+    # =====================================================
 
-models = {
+    print_heading("📊 DATASET SHAPE")
 
-    "Logistic Regression": LogisticRegression(),
+    print_shape(df)
 
-    "Decision Tree": DecisionTreeClassifier(),
 
-    "Random Forest": RandomForestClassifier(),
+    print_heading("📄 FIRST 5 ROWS")
 
-    "Bagging": BaggingClassifier(),
+    print_head(df)
 
-    "KNN": KNeighborsClassifier(),
 
-    "SVM": SVC(probability=True),
+    # =====================================================
+    # STEP 4 - SEPARATE FEATURES & TARGET
+    # =====================================================
 
-    "MLP": MLPClassifier(max_iter=500),
+    # Features
+    X = df.drop("y", axis=1)
 
-    "XGBoost": XGBClassifier(
-        use_label_encoder=False,
-        eval_metric='logloss'
+    # Target
+    y = df["y"]
+
+    print_success(
+        "Features and Target Separated"
     )
-}
 
-print("\n✅ Machine Learning Models Initialized")
 
+    # =====================================================
+    # STEP 5 - TRAIN TEST SPLIT
+    # =====================================================
 
-# =========================================================
-# STEP 8 - TRAIN AND EVALUATE MODELS
-# =========================================================
+    X_train, X_test, y_train, y_test = train_test_split(
 
-results = []
+        X,
+        y,
 
-print("\n==============================")
-print("🤖 MODEL TRAINING STARTED")
-print("==============================")
+        test_size=TEST_SIZE,
 
+        random_state=RANDOM_STATE
+    )
 
-for name, model in models.items():
+    print_success(
+        "Train-Test Split Completed"
+    )
 
-    print(f"\n🚀 Training {name}...")
+    print("\n📊 Training Data Shape:")
 
-    # Train model
-    model.fit(X_train, y_train)
+    print(X_train.shape)
 
-    # Predict test data
-    y_pred = model.predict(X_test)
+    print("\n📊 Testing Data Shape:")
 
-    # Probability prediction
-    y_prob = model.predict_proba(X_test)[:, 1]
+    print(X_test.shape)
 
-    # Calculate metrics
-    accuracy = accuracy_score(y_test, y_pred)
 
-    precision = precision_score(y_test, y_pred)
+    # =====================================================
+    # STEP 6 - CREATE MACHINE LEARNING MODELS
+    # =====================================================
 
-    recall = recall_score(y_test, y_pred)
+    models = {
 
-    f1 = f1_score(y_test, y_pred)
+        "Logistic Regression":
 
-    roc_auc = roc_auc_score(y_test, y_prob)
+            LogisticRegression(),
 
-    # Store results
-    results.append({
 
-        "Model": name,
+        "Decision Tree":
 
-        "Accuracy": accuracy,
+            DecisionTreeClassifier(),
 
-        "Precision": precision,
 
-        "Recall": recall,
+        "Random Forest":
 
-        "F1 Score": f1,
+            RandomForestClassifier(),
 
-        "ROC-AUC": roc_auc
-    })
 
-    # Print results
-    print(f"✅ {name} Completed")
+        "Bagging":
 
-    print(f"Accuracy  : {accuracy:.4f}")
+            BaggingClassifier(),
 
-    print(f"Precision : {precision:.4f}")
 
-    print(f"Recall    : {recall:.4f}")
+        "KNN":
 
-    print(f"F1 Score  : {f1:.4f}")
+            KNeighborsClassifier(),
 
-    print(f"ROC-AUC   : {roc_auc:.4f}")
 
+        "SVM":
 
-# =========================================================
-# STEP 9 - CREATE RESULTS DATAFRAME
-# =========================================================
+            SVC(probability=True),
 
-results_df = pd.DataFrame(results)
 
-print("\n==============================")
-print("📊 MODEL RESULTS")
-print("==============================")
+        "MLP":
 
-print(results_df)
+            MLPClassifier(
+                max_iter=MAX_ITER
+            ),
 
 
-# =========================================================
-# STEP 10 - SORT BEST MODELS
-# =========================================================
+        "XGBoost":
 
-results_df = results_df.sort_values(
+            XGBClassifier(
+                eval_metric='logloss'
+            )
+    }
 
-    by="ROC-AUC",
+    print_success(
+        "Machine Learning Models Initialized"
+    )
 
-    ascending=False
-)
 
-print("\n==============================")
-print("🏆 SORTED MODEL RESULTS")
-print("==============================")
+    # =====================================================
+    # STEP 7 - TRAIN & EVALUATE MODELS
+    # =====================================================
 
-print(results_df)
+    results = []
 
+    print_heading(
+        "🤖 MODEL TRAINING STARTED"
+    )
 
-# =========================================================
-# STEP 11 - SAVE RESULTS
-# =========================================================
 
-results_df.to_csv(
+    for name, model in models.items():
 
-    "outputs/model_results.csv",
+        print(f"\n🚀 Training {name}...")
 
-    index=False
-)
 
-print("\n✅ Model Results Saved Successfully")
+        # =================================================
+        # TRAIN MODEL
+        # =================================================
 
-print("\n📁 File Saved:")
-print("outputs/model_results.csv")
+        model.fit(
 
+            X_train,
+            y_train
+        )
 
-# =========================================================
-# STEP 12 - VISUALIZATION
-# =========================================================
 
-plt.figure(figsize=(12,6))
+        # =================================================
+        # PREDICTIONS
+        # =================================================
 
-plt.bar(
+        y_pred = model.predict(
+            X_test
+        )
 
-    results_df["Model"],
+        y_prob = model.predict_proba(
+            X_test
+        )[:, 1]
 
-    results_df["Accuracy"]
-)
 
-plt.xticks(rotation=45)
+        # =================================================
+        # CALCULATE METRICS
+        # =================================================
 
-plt.title("Model Accuracy Comparison")
+        accuracy = accuracy_score(
+            y_test,
+            y_pred
+        )
 
-plt.xlabel("Models")
+        precision = precision_score(
+            y_test,
+            y_pred
+        )
 
-plt.ylabel("Accuracy")
+        recall = recall_score(
+            y_test,
+            y_pred
+        )
 
+        f1 = f1_score(
+            y_test,
+            y_pred
+        )
 
-# Save graph
-plt.savefig("outputs/graphs/accuracy_comparison.png")
-plt.close()
-print("\n✅ Accuracy Graph Saved")
+        roc_auc = roc_auc_score(
+            y_test,
+            y_prob
+        )
 
 
+        # =================================================
+        # STORE RESULTS
+        # =================================================
 
+        results.append({
 
-# =========================================================
-# STEP 13 - BEST MODEL
-# =========================================================
+            "Model": name,
 
-best_model = results_df.iloc[0]
+            "Accuracy": accuracy,
 
-print("\n==============================")
-print("🏆 BEST MODEL")
-print("==============================")
+            "Precision": precision,
 
-print(best_model)
+            "Recall": recall,
 
+            "F1 Score": f1,
 
-# =========================================================
-# STEP 14 - FINAL MESSAGE
-# =========================================================
+            "ROC-AUC": roc_auc
+        })
 
-print("\n========================================")
-print("🎉 MODEL TRAINING COMPLETED")
-print("========================================")
 
-print("""
+        # =================================================
+        # PRINT RESULTS
+        # =================================================
+
+        print(f"✅ {name} Completed")
+
+        print(f"Accuracy  : {accuracy:.4f}")
+
+        print(f"Precision : {precision:.4f}")
+
+        print(f"Recall    : {recall:.4f}")
+
+        print(f"F1 Score  : {f1:.4f}")
+
+        print(f"ROC-AUC   : {roc_auc:.4f}")
+
+
+        # =================================================
+        # SAVE ROC CURVE
+        # =================================================
+
+        plot_roc_curve(
+
+            y_test,
+            y_prob,
+            name
+        )
+
+
+        # =================================================
+        # SAVE CONFUSION MATRIX
+        # =================================================
+
+        plot_confusion_matrix(
+
+            y_test,
+            y_pred,
+            name
+        )
+
+
+    # =====================================================
+    # STEP 8 - CREATE RESULTS DATAFRAME
+    # =====================================================
+
+    results_df = pd.DataFrame(results)
+
+
+    # =====================================================
+    # SORT BEST MODELS
+    # =====================================================
+
+    results_df = results_df.sort_values(
+
+        by="ROC-AUC",
+
+        ascending=False
+    )
+
+
+    print_heading(
+        "🏆 FINAL MODEL RESULTS"
+    )
+
+    print(results_df)
+
+
+    # =====================================================
+    # STEP 9 - SAVE RESULTS
+    # =====================================================
+
+    results_df.to_csv(
+
+        MODEL_RESULTS_PATH,
+
+        index=False
+    )
+
+    print_success(
+        "Model Results Saved Successfully"
+    )
+
+    print("\n📁 File Saved:")
+
+    print(MODEL_RESULTS_PATH)
+
+
+    # =====================================================
+    # STEP 10 - SAVE ACCURACY GRAPH
+    # =====================================================
+
+    plot_model_accuracy(results_df)
+
+    print_success(
+        "Accuracy Comparison Graph Saved"
+    )
+
+
+    # =====================================================
+    # STEP 11 - BEST MODEL
+    # =====================================================
+
+    best_model = results_df.iloc[0]
+
+    print_heading(
+        "🥇 BEST MODEL"
+    )
+
+    print(best_model)
+
+
+    # =====================================================
+    # STEP 12 - FINAL MESSAGE
+    # =====================================================
+
+    print("\n========================================")
+
+    print("🎉 MODEL TRAINING COMPLETED")
+
+    print("========================================")
+
+    print("""
+Generated Outputs:
+
+1. outputs/model_results.csv
+
+2. outputs/graphs/accuracy_comparison.png
+
+3. ROC Curves for all models
+
+4. Confusion Matrices for all models
+
+
 Next Step:
 Run -> 03_TOPSIS_Ranking.py
-
-Generated Files:
-1. outputs/model_results.csv
-2. outputs/graphs/accuracy_comparison.png
 """)
+
+
+# =========================================================
+# RUN MAIN FUNCTION
+# =========================================================
+
+if __name__ == "__main__":
+
+    main()
