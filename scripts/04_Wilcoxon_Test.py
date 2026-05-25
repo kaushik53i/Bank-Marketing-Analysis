@@ -6,8 +6,11 @@
 # STEP 1 - IMPORT LIBRARIES
 # =========================================================
 
+# Data handling
 import pandas as pd
 import numpy as np
+
+# System utilities
 import os
 
 # Statistical Testing
@@ -15,165 +18,233 @@ from scipy.stats import wilcoxon
 
 
 # =========================================================
-# STEP 2 - CREATE OUTPUT FOLDERS
+# IMPORT CUSTOM MODULES
 # =========================================================
 
-os.makedirs("outputs", exist_ok=True)
+from config import *
 
-print("\n✅ Output folders ready")
-
-
-# =========================================================
-# STEP 3 - LOAD MODEL RESULTS
-# =========================================================
-
-df = pd.read_csv(
-    "outputs/model_results.csv"
-)
-
-print("\n✅ Model Results Loaded Successfully")
+from utils import *
 
 
 # =========================================================
-# STEP 4 - DISPLAY DATA
+# MAIN FUNCTION
 # =========================================================
 
-print("\n==============================")
-print("📊 MODEL RESULTS")
-print("==============================")
+def main():
 
-print(df)
+    # =====================================================
+    # STEP TITLE
+    # =====================================================
 
-
-# =========================================================
-# STEP 5 - PREPARE MODEL SCORES
-# =========================================================
-
-# Using ROC-AUC scores for comparison
-
-models = {}
-
-for index, row in df.iterrows():
-
-    model_name = row["Model"]
-
-    # Create small repeated sample
-    # (for demonstration/testing purpose)
-
-    models[model_name] = [
-
-        row["ROC-AUC"],
-
-        row["ROC-AUC"] - 0.01,
-
-        row["ROC-AUC"] + 0.01,
-
-        row["ROC-AUC"] - 0.02,
-
-        row["ROC-AUC"] + 0.02
-    ]
-
-print("\n✅ Model Scores Prepared")
+    print_step(4, "WILCOXON TEST")
 
 
-# =========================================================
-# STEP 6 - PERFORM WILCOXON TEST
-# =========================================================
+    # =====================================================
+    # CREATE OUTPUT FOLDERS
+    # =====================================================
 
-results = []
+    os.makedirs("outputs", exist_ok=True)
 
-model_names = list(models.keys())
-
-print("\n==============================")
-print("📐 WILCOXON TEST STARTED")
-print("==============================")
+    print_success("Output folders ready")
 
 
-for i in range(len(model_names)):
+    # =====================================================
+    # STEP 2 - LOAD MODEL RESULTS
+    # =====================================================
 
-    for j in range(i + 1, len(model_names)):
+    try:
 
-        model_1 = model_names[i]
-
-        model_2 = model_names[j]
-
-        print(f"\n🔍 Comparing:")
-        print(f"{model_1}  VS  {model_2}")
-
-        # Perform Wilcoxon Test
-        stat, p_value = wilcoxon(
-
-            models[model_1],
-
-            models[model_2]
+        df = pd.read_csv(
+            MODEL_RESULTS_PATH
         )
 
-        # Check significance
-        significant = p_value < 0.05
+        print_success(
+            "Model Results Loaded Successfully"
+        )
 
-        # Store results
-        results.append({
+    except FileNotFoundError:
 
-            "Model 1": model_1,
+        print_error(
+            "Model Results File Not Found"
+        )
 
-            "Model 2": model_2,
-
-            "Statistic": stat,
-
-            "P-Value": p_value,
-
-            "Significant": significant
-        })
-
-        print(f"Statistic  : {stat:.4f}")
-
-        print(f"P-Value    : {p_value:.4f}")
-
-        print(f"Significant: {significant}")
+        return
 
 
-# =========================================================
-# STEP 7 - CREATE RESULTS DATAFRAME
-# =========================================================
+    # =====================================================
+    # STEP 3 - DISPLAY DATA
+    # =====================================================
 
-results_df = pd.DataFrame(results)
+    print_heading("📊 MODEL RESULTS")
 
-print("\n==============================")
-print("📊 WILCOXON TEST RESULTS")
-print("==============================")
-
-print(results_df)
+    print(df)
 
 
-# =========================================================
-# STEP 8 - SAVE RESULTS
-# =========================================================
+    # =====================================================
+    # STEP 4 - PREPARE MODEL SCORES
+    # =====================================================
 
-results_df.to_csv(
+    # Using ROC-AUC scores for comparison
 
-    "outputs/wilcoxon_results.csv",
+    models = {}
 
-    index=False
-)
+    for index, row in df.iterrows():
 
-print("\n✅ Wilcoxon Results Saved Successfully")
+        model_name = row["Model"]
 
-print("\n📁 File Saved:")
-print("outputs/wilcoxon_results.csv")
+        # Create small repeated sample
+        # (for demonstration/testing purpose)
+
+        models[model_name] = [
+
+            row["ROC-AUC"],
+
+            row["ROC-AUC"] - 0.01,
+
+            row["ROC-AUC"] + 0.01,
+
+            row["ROC-AUC"] - 0.02,
+
+            row["ROC-AUC"] + 0.02
+        ]
+
+    print_success(
+        "Model Scores Prepared"
+    )
 
 
-# =========================================================
-# STEP 9 - FINAL MESSAGE
-# =========================================================
+    # =====================================================
+    # STEP 5 - PERFORM WILCOXON TEST
+    # =====================================================
 
-print("\n========================================")
-print("🎉 WILCOXON TEST COMPLETED")
-print("========================================")
+    results = []
 
-print("""
+    model_names = list(models.keys())
+
+    print_heading(
+        "📐 WILCOXON TEST STARTED"
+    )
+
+
+    for i in range(len(model_names)):
+
+        for j in range(i + 1, len(model_names)):
+
+            model_1 = model_names[i]
+
+            model_2 = model_names[j]
+
+            print(f"\n🔍 Comparing:")
+
+            print(f"{model_1}  VS  {model_2}")
+
+
+            # =============================================
+            # PERFORM WILCOXON TEST
+            # =============================================
+
+            stat, p_value = wilcoxon(
+
+                models[model_1],
+
+                models[model_2]
+            )
+
+
+            # =============================================
+            # CHECK SIGNIFICANCE
+            # =============================================
+
+            significant = p_value < 0.05
+
+
+            # =============================================
+            # STORE RESULTS
+            # =============================================
+
+            results.append({
+
+                "Model 1": model_1,
+
+                "Model 2": model_2,
+
+                "Statistic": stat,
+
+                "P-Value": p_value,
+
+                "Significant": significant
+            })
+
+
+            # =============================================
+            # PRINT RESULTS
+            # =============================================
+
+            print(f"Statistic  : {stat:.4f}")
+
+            print(f"P-Value    : {p_value:.4f}")
+
+            print(f"Significant: {significant}")
+
+
+    # =====================================================
+    # STEP 6 - CREATE RESULTS DATAFRAME
+    # =====================================================
+
+    results_df = pd.DataFrame(results)
+
+    print_heading(
+        "📊 WILCOXON TEST RESULTS"
+    )
+
+    print(results_df)
+
+
+    # =====================================================
+    # STEP 7 - SAVE RESULTS
+    # =====================================================
+
+    results_df.to_csv(
+
+        WILCOXON_RESULTS_PATH,
+
+        index=False
+    )
+
+    print_success(
+        "Wilcoxon Results Saved Successfully"
+    )
+
+    print("\n📁 File Saved:")
+
+    print(WILCOXON_RESULTS_PATH)
+
+
+    # =====================================================
+    # STEP 8 - FINAL MESSAGE
+    # =====================================================
+
+    print("\n========================================")
+
+    print("🎉 WILCOXON TEST COMPLETED")
+
+    print("========================================")
+
+    print("""
+Generated File:
+
+1. outputs/wilcoxon_results.csv
+
+
 Next Step:
 Run -> 05_SHAP_LIME.py
-
-Generated File:
-outputs/wilcoxon_results.csv
 """)
+
+
+# =========================================================
+# RUN MAIN FUNCTION
+# =========================================================
+
+if __name__ == "__main__":
+
+    main()
