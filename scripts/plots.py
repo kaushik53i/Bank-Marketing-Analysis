@@ -2,19 +2,10 @@
 # VISUALIZATION FUNCTIONS
 # =========================================================
 
-# =========================================================
-# IMPORT LIBRARIES
-# =========================================================
-
 import matplotlib.pyplot as plt
-
 import os
 
-
-# =========================================================
-# CREATE GRAPH FOLDER
-# =========================================================
-
+# Create graph folder automatically
 os.makedirs("outputs/graphs", exist_ok=True)
 
 
@@ -24,10 +15,7 @@ os.makedirs("outputs/graphs", exist_ok=True)
 
 def plot_class_distribution(data):
 
-    data.value_counts().plot(
-
-        kind='bar'
-    )
+    data.value_counts().plot(kind='bar')
 
     plt.title("Class Distribution Before SMOTE")
 
@@ -39,7 +27,7 @@ def plot_class_distribution(data):
         "outputs/graphs/class_distribution_before_smote.png"
     )
 
-    plt.show()
+    plt.close()
 
 
 # =========================================================
@@ -48,10 +36,7 @@ def plot_class_distribution(data):
 
 def plot_balanced_dataset(data):
 
-    data.value_counts().plot(
-
-        kind='bar'
-    )
+    data.value_counts().plot(kind='bar')
 
     plt.title("Balanced Dataset After SMOTE")
 
@@ -63,11 +48,11 @@ def plot_balanced_dataset(data):
         "outputs/graphs/balanced_dataset.png"
     )
 
-    plt.show()
+    plt.close()
 
 
 # =========================================================
-# MODEL ACCURACY COMPARISON GRAPH
+# MODEL ACCURACY GRAPH
 # =========================================================
 
 def plot_model_accuracy(results_df):
@@ -93,11 +78,11 @@ def plot_model_accuracy(results_df):
         "outputs/graphs/accuracy_comparison.png"
     )
 
-    plt.show()
+    plt.close()
 
 
 # =========================================================
-# SHAP SUMMARY SAVE FUNCTION
+# SAVE SHAP SUMMARY
 # =========================================================
 
 def save_shap_summary():
