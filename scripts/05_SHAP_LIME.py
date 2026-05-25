@@ -6,8 +6,11 @@
 # STEP 1 - IMPORT LIBRARIES
 # =========================================================
 
+# Data handling
 import pandas as pd
 import numpy as np
+
+# System utilities
 import os
 
 # Train Test Split
@@ -27,242 +30,308 @@ import matplotlib.pyplot as plt
 
 
 # =========================================================
-# STEP 2 - CREATE OUTPUT FOLDERS
+# IMPORT CUSTOM MODULES
 # =========================================================
 
-os.makedirs("outputs", exist_ok=True)
+from config import *
 
-os.makedirs("outputs/graphs", exist_ok=True)
+from utils import *
 
-print("\n✅ Output folders ready")
-
-
-# =========================================================
-# STEP 3 - LOAD BALANCED DATASET
-# =========================================================
-
-df = pd.read_csv(
-    "dataset/balanced_bank_data.csv"
-)
-
-print("\n✅ Balanced Dataset Loaded Successfully")
+from plots import *
 
 
 # =========================================================
-# STEP 4 - DISPLAY DATASET INFO
+# MAIN FUNCTION
 # =========================================================
 
-print("\n==============================")
-print("📊 DATASET SHAPE")
-print("==============================")
+def main():
 
-print(df.shape)
+    # =====================================================
+    # STEP TITLE
+    # =====================================================
 
-print("\n==============================")
-print("📄 FIRST 5 ROWS")
-print("==============================")
+    print_step(5, "SHAP & LIME ANALYSIS")
 
-print(df.head())
 
+    # =====================================================
+    # CREATE OUTPUT FOLDERS
+    # =====================================================
 
-# =========================================================
-# STEP 5 - SEPARATE FEATURES AND TARGET
-# =========================================================
+    os.makedirs("outputs", exist_ok=True)
 
-X = df.drop("y", axis=1)
+    os.makedirs("outputs/graphs", exist_ok=True)
 
-y = df["y"]
+    print_success("Output folders ready")
 
-print("\n✅ Features and Target Separated")
 
+    # =====================================================
+    # STEP 2 - LOAD BALANCED DATASET
+    # =====================================================
 
-# =========================================================
-# STEP 6 - TRAIN TEST SPLIT
-# =========================================================
+    try:
 
-X_train, X_test, y_train, y_test = train_test_split(
+        df = pd.read_csv(
+            BALANCED_DATASET_PATH
+        )
 
-    X,
-    y,
+        print_success(
+            "Balanced Dataset Loaded Successfully"
+        )
 
-    test_size=0.2,
+    except FileNotFoundError:
 
-    random_state=42
-)
+        print_error(
+            "Balanced Dataset File Not Found"
+        )
 
-print("\n✅ Train-Test Split Completed")
+        return
 
 
-# =========================================================
-# STEP 7 - TRAIN BEST MODEL
-# =========================================================
+    # =====================================================
+    # STEP 3 - DISPLAY DATASET INFO
+    # =====================================================
 
-model = XGBClassifier(
+    print_heading("📊 DATASET SHAPE")
 
-    eval_metric='logloss'
-)
+    print_shape(df)
 
-print("\n🚀 Training XGBoost Model...")
 
-model.fit(X_train, y_train)
+    print_heading("📄 FIRST 5 ROWS")
 
-print("✅ XGBoost Model Trained Successfully")
+    print_head(df)
 
 
-# =========================================================
-# STEP 8 - SHAP EXPLAINER
-# =========================================================
+    # =====================================================
+    # STEP 4 - SEPARATE FEATURES & TARGET
+    # =====================================================
 
-print("\n==============================")
-print("🔍 GENERATING SHAP VALUES")
-print("==============================")
+    X = df.drop("y", axis=1)
 
-# Create SHAP explainer
-explainer = shap.Explainer(model)
+    y = df["y"]
 
-# Generate SHAP values
-shap_values = explainer(X_test)
+    print_success(
+        "Features and Target Separated"
+    )
 
-print("✅ SHAP Values Generated")
 
+    # =====================================================
+    # STEP 5 - TRAIN TEST SPLIT
+    # =====================================================
 
-# =========================================================
-# STEP 9 - SHAP SUMMARY PLOT
-# =========================================================
+    X_train, X_test, y_train, y_test = train_test_split(
 
-print("\n📊 Creating SHAP Summary Plot...")
+        X,
+        y,
 
-shap.summary_plot(
+        test_size=TEST_SIZE,
 
-    shap_values,
+        random_state=RANDOM_STATE
+    )
 
-    X_test,
+    print_success(
+        "Train-Test Split Completed"
+    )
 
-    show=False
-)
 
-# Save graph
-plt.savefig(
+    # =====================================================
+    # STEP 6 - TRAIN BEST MODEL
+    # =====================================================
 
-    "outputs/graphs/shap_summary.png",
+    model = XGBClassifier(
 
-    bbox_inches='tight'
-)
+        eval_metric='logloss'
+    )
 
-print("✅ SHAP Summary Plot Saved")
+    print("\n🚀 Training XGBoost Model...")
 
-plt.close()
+    model.fit(
 
+        X_train,
+        y_train
+    )
 
-# =========================================================
-# STEP 10 - FEATURE IMPORTANCE
-# =========================================================
+    print_success(
+        "XGBoost Model Trained Successfully"
+    )
 
-print("\n==============================")
-print("🏆 FEATURE IMPORTANCE")
-print("==============================")
 
-feature_importance = pd.DataFrame({
+    # =====================================================
+    # STEP 7 - SHAP EXPLAINER
+    # =====================================================
 
-    "Feature": X.columns,
+    print_heading(
+        "🔍 GENERATING SHAP VALUES"
+    )
 
-    "Importance": np.abs(
-        shap_values.values
-    ).mean(axis=0)
-})
+    # Create SHAP explainer
+    explainer = shap.Explainer(model)
 
-feature_importance = feature_importance.sort_values(
+    # Generate SHAP values
+    shap_values = explainer(X_test)
 
-    by="Importance",
+    print_success(
+        "SHAP Values Generated"
+    )
 
-    ascending=False
-)
 
-print(feature_importance.head(10))
+    # =====================================================
+    # STEP 8 - SHAP SUMMARY PLOT
+    # =====================================================
 
+    print("\n📊 Creating SHAP Summary Plot...")
 
-# =========================================================
-# STEP 11 - LIME EXPLAINER
-# =========================================================
+    shap.summary_plot(
 
-print("\n==============================")
-print("🔍 GENERATING LIME EXPLANATION")
-print("==============================")
+        shap_values,
 
-lime_explainer = LimeTabularExplainer(
+        X_test,
 
-    training_data=np.array(X_train),
+        show=False
+    )
 
-    feature_names=X.columns.tolist(),
+    # Save graph automatically
+    save_shap_summary()
 
-    class_names=['No', 'Yes'],
+    print_success(
+        "SHAP Summary Plot Saved"
+    )
 
-    mode='classification'
-)
 
-print("✅ LIME Explainer Created")
+    # =====================================================
+    # STEP 9 - FEATURE IMPORTANCE
+    # =====================================================
 
+    print_heading(
+        "🏆 FEATURE IMPORTANCE"
+    )
 
-# =========================================================
-# STEP 12 - EXPLAIN SINGLE PREDICTION
-# =========================================================
+    feature_importance = pd.DataFrame({
 
-exp = lime_explainer.explain_instance(
+        "Feature": X.columns,
 
-    X_test.iloc[0].values,
+        "Importance": np.abs(
 
-    model.predict_proba
-)
+            shap_values.values
 
-print("\n✅ LIME Explanation Generated")
+        ).mean(axis=0)
+    })
 
+    feature_importance = feature_importance.sort_values(
 
-# =========================================================
-# STEP 13 - SAVE LIME OUTPUT
-# =========================================================
+        by="Importance",
 
-exp.save_to_file(
+        ascending=False
+    )
 
-    "outputs/lime_explanation.html"
-)
+    print(feature_importance.head(10))
 
-print("\n✅ LIME Explanation Saved")
 
-print("\n📁 File Saved:")
-print("outputs/lime_explanation.html")
+    # =====================================================
+    # STEP 10 - LIME EXPLAINER
+    # =====================================================
 
+    print_heading(
+        "🔍 GENERATING LIME EXPLANATION"
+    )
 
-# =========================================================
-# STEP 14 - SAVE FEATURE IMPORTANCE
-# =========================================================
+    lime_explainer = LimeTabularExplainer(
 
-feature_importance.to_csv(
+        training_data=np.array(X_train),
 
-    "outputs/feature_importance.csv",
+        feature_names=X.columns.tolist(),
 
-    index=False
-)
+        class_names=['No', 'Yes'],
 
-print("\n✅ Feature Importance Saved")
+        mode='classification'
+    )
 
-print("\n📁 File Saved:")
-print("outputs/feature_importance.csv")
+    print_success(
+        "LIME Explainer Created"
+    )
 
 
-# =========================================================
-# STEP 15 - FINAL MESSAGE
-# =========================================================
+    # =====================================================
+    # STEP 11 - EXPLAIN SINGLE PREDICTION
+    # =====================================================
 
-print("\n========================================")
-print("🎉 SHAP & LIME ANALYSIS COMPLETED")
-print("========================================")
+    exp = lime_explainer.explain_instance(
 
-print("""
+        X_test.iloc[0].values,
+
+        model.predict_proba
+    )
+
+    print_success(
+        "LIME Explanation Generated"
+    )
+
+
+    # =====================================================
+    # STEP 12 - SAVE LIME OUTPUT
+    # =====================================================
+
+    exp.save_to_file(
+
+        LIME_OUTPUT_PATH
+    )
+
+    print_success(
+        "LIME Explanation Saved"
+    )
+
+    print("\n📁 File Saved:")
+
+    print(LIME_OUTPUT_PATH)
+
+
+    # =====================================================
+    # STEP 13 - SAVE FEATURE IMPORTANCE
+    # =====================================================
+
+    feature_importance.to_csv(
+
+        FEATURE_IMPORTANCE_PATH,
+
+        index=False
+    )
+
+    print_success(
+        "Feature Importance Saved"
+    )
+
+    print("\n📁 File Saved:")
+
+    print(FEATURE_IMPORTANCE_PATH)
+
+
+    # =====================================================
+    # STEP 14 - FINAL MESSAGE
+    # =====================================================
+
+    print("\n========================================")
+
+    print("🎉 SHAP & LIME ANALYSIS COMPLETED")
+
+    print("========================================")
+
+    print("""
 Generated Files:
 
 1. outputs/graphs/shap_summary.png
+
 2. outputs/lime_explanation.html
+
 3. outputs/feature_importance.csv
+
 
 Project Pipeline Completed Successfully.
 """)
+
+
+# =========================================================
+# RUN MAIN FUNCTION
+# =========================================================
+
+if __name__ == "__main__":
+
+    main()
