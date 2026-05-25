@@ -316,15 +316,6 @@ python scripts/05_SHAP_LIME.py
 
 ---
 
-# 📚 Future Improvements
-
-- Streamlit Web Application
-- Real-time Banking Dashboard
-- Hyperparameter Optimization
-- Deep Learning Integration
-- Cloud Deployment
-- Docker Support
-- Automated Hyperparameter Tuning
 
 ---
 
@@ -341,6 +332,7 @@ Special thanks to:
 - UCI Machine Learning Repository
 - Open Source Machine Learning Community
 - Project Team Members
+- Our Mentors
 
 ---
 
